@@ -42,6 +42,42 @@ export class TodosAccess {
     const items = result.Items
     return items as TodoItem[]
   }
+
+  async updateTodo(userId: string, todoId: string, todoUpdate: TodoUpdate): Promise<TodoUpdate> {
+    const params = {
+        TableName: this.todosTable,
+        Key: {
+            todoId: todoId,
+            userId: userId
+        },
+        UpdateExpression: 'set #todo_name = :name, dueDate = :dueDate, done = :done',
+        ExpressionAttributeNames: {
+            '#todo_name': 'name'
+        },
+        ExpressionAttributeValues: {
+            ':name': todoUpdate.name,
+            ':dueDate': todoUpdate.dueDate,
+            ':done': todoUpdate.done,
+        },
+        ReturnValues: "UPDATED_NEW"
+    }
+    await this.docClient.update(params).promise()
+
+    return todoUpdate
+  }
+
+  async todoExists(userId: string, todoId: string): Promise<boolean> {
+    const params = {
+        TableName: this.todosTable,
+        Key: {
+            todoId: todoId,
+            userId: userId
+        }
+    }
+    const result = await this.docClient.get(params).promise()
+
+    return !!result.Item
+  }
 }
 
 function createDynamoDBClient() {
