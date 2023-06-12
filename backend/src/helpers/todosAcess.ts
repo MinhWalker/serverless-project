@@ -15,7 +15,12 @@ export class TodosAccess {
 
   constructor(
       private readonly docClient: DocumentClient = createDynamoDBClient(),
-      private readonly todosTable = process.env.TODOS_TABLE) {
+      private readonly todosTable = process.env.TODOS_TABLE,
+      private readonly s3 = new AWS.S3({
+        signatureVersion: 'v4'
+      }),
+      private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
+      private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION) {
   }
 
   async createTodo(todo: TodoItem): Promise<TodoItem> {
@@ -66,6 +71,17 @@ export class TodosAccess {
     return todoUpdate
   }
 
+  async deleteTodo(userId: string, todoId: string) {
+    const params = {
+        TableName: this.todosTable,
+        Key: {
+            todoId: todoId,
+            userId: userId
+        }
+    }
+    await this.docClient.delete(params).promise()
+  }
+
   async todoExists(userId: string, todoId: string): Promise<boolean> {
     const params = {
         TableName: this.todosTable,
@@ -77,6 +93,32 @@ export class TodosAccess {
     const result = await this.docClient.get(params).promise()
 
     return !!result.Item
+  }
+
+  getUploadUrl(todoId: string) {
+    return this.s3.getSignedUrl('putObject', {
+        Bucket: this.bucketName,
+        Key: todoId,
+        Expires: parseInt(this.urlExpiration)
+    })
+  }
+
+  async updateUrl(userId: string, todoId: string) {
+    const url =  `https://${this.bucketName}.s3.amazonaws.com/${todoId}`;
+
+    const params = {
+        TableName: this.todosTable,
+        Key: {
+            todoId: todoId,
+            userId: userId
+        },
+        UpdateExpression: 'set attachmentUrl = :attachmentUrl',
+        ExpressionAttributeValues: {
+            ':attachmentUrl': url,
+        },
+        ReturnValues: "UPDATED_NEW"
+    }
+    await this.docClient.update(params).promise()
   }
 }
 

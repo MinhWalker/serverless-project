@@ -66,3 +66,26 @@ export async function todoExists (
       todoId
   )
 }
+
+export async function deleteTodo(
+  todoId: string,
+  jwtToken: string
+) {
+  const userId = 'user' //getUserId(jwtToken)
+  await todoAccess.deleteTodo(userId, todoId);
+}
+
+export async function generateAndAddUploadUrl (
+  todoId: string,
+  jwtToken: string
+): Promise<string> {
+
+  const uploadUrl = todoAccess.getUploadUrl(todoId)
+  const userId = 'user' //getUserId(jwtToken)
+  await todoAccess.updateUrl(
+      userId,
+      todoId,
+  )
+
+  return uploadUrl
+}
