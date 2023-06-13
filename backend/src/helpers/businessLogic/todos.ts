@@ -1,7 +1,7 @@
-import { TodosAccess } from './todosAcess'
-import { CreateTodoRequest } from '../requests/CreateTodoRequest'
-import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-import { createLogger } from '../utils/logger'
+import { TodosAccess } from '../dataLayer/todosAcess'
+import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { createLogger } from '../../utils/logger'
 import * as uuid from 'uuid'
 
 const logger = createLogger("Business Logic CRUD todo");

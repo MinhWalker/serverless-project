@@ -1,8 +1,8 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-import { createLogger } from '../utils/logger'
-import { TodoItem } from '../models/TodoItem'
-import { TodoUpdate } from '../models/TodoUpdate';
-import {AttachmentUtils} from "../helpers/attachmentUtils";
+import { createLogger } from '../../utils/logger'
+import { TodoItem } from '../../models/TodoItem'
+import { TodoUpdate } from '../../models/TodoUpdate';
+import {AttachmentUtils} from "../fileStorage/attachmentUtils";
 
 const AWS = require("aws-sdk");
 const AWSXRay = require('aws-xray-sdk');
